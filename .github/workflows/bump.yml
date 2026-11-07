@@ -3,13 +3,25 @@ on:
   schedule:
     - cron: "0 6 * * 1"
   workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
 jobs:
   bump:
     runs-on: ubuntu-latest
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+      HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
     steps:
-      - name: Bump outdated casks in this tap
-        uses: LanikSJ/homebrew-bump-cask@v3
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+      - name: Tap and trust
+        run: |
+          brew tap nchrtd22/tap
+          brew trust --tap nchrtd22/tap
+      - name: Configure Git user
+        uses: Homebrew/actions/git-user-config@main
         with:
-          token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
-          tap: nchrtd22/homebrew-tap
-          livecheck: true
+          username: ${{ github.actor }}
+      - name: Bump outdated casks
+        run: brew bump --no-fork --open-pr --casks --tap=nchrtd22/tap
