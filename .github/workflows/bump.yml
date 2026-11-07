@@ -1,7 +1,7 @@
 name: Bump casks
 on:
   schedule:
-    - cron: "0 6 * * 1"   # every Monday morning
+    - cron: "0 6 * * 1"
   workflow_dispatch:
 jobs:
   bump:
@@ -11,5 +11,5 @@ jobs:
         uses: LanikSJ/homebrew-bump-cask@master
         with:
           token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
-          tap: <your-username>/homebrew-tap
+          tap: nchrtd22/homebrew-tap
           livecheck: true
