@@ -1,0 +1,15 @@
+name: Bump casks
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # every Monday morning
+  workflow_dispatch:
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bump outdated casks in this tap
+        uses: LanikSJ/homebrew-bump-cask@master
+        with:
+          token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
+          tap: <your-username>/homebrew-tap
+          livecheck: true
