@@ -12,9 +12,11 @@ jobs:
           fetch-depth: 0
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@main
-      - name: Tap and trust the PR checkout
+      - name: Point the tap at the PR branch
         run: |
-          brew tap nchrtd22/tap "$GITHUB_WORKSPACE"
+          TAP_DIR="$(brew --repository nchrtd22/tap)"
+          git -C "$TAP_DIR" fetch origin "${{ github.event.pull_request.head.ref }}"
+          git -C "$TAP_DIR" checkout --quiet FETCH_HEAD
           brew trust --tap nchrtd22/tap
       - name: Fetch changed casks (verifies URL + sha256)
         run: |
