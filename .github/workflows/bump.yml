@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Bump outdated casks in this tap
-        uses: LanikSJ/homebrew-bump-cask@master
+        uses: LanikSJ/homebrew-bump-cask@v3
         with:
           token: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
           tap: nchrtd22/homebrew-tap
