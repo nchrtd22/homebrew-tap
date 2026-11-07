@@ -1,0 +1,26 @@
+name: Check casks
+on:
+  pull_request:
+    paths:
+      - "Casks/*.rb"
+jobs:
+  fetch-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+      - name: Tap and trust the PR checkout
+        run: |
+          brew tap nchrtd22/tap "$GITHUB_WORKSPACE"
+          brew trust --tap nchrtd22/tap
+      - name: Fetch changed casks (verifies URL + sha256)
+        run: |
+          for f in $(git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD -- 'Casks/*.rb'); do
+            cask=$(basename "$f" .rb)
+            echo "::group::Fetching nchrtd22/tap/$cask"
+            brew fetch --cask "nchrtd22/tap/$cask"
+            echo "::endgroup::"
+          done
