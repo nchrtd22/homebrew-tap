@@ -14,13 +14,13 @@ jobs:
       HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GITHUB_API_TOKEN }}
     steps:
       - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@main
+        uses: Homebrew/actions/setup-homebrew@63a2d4d8d4193eab3e62b1b782ff3ab8408f5b29 # main 2026-11-06
       - name: Tap and trust
         run: |
           brew tap nchrtd22/tap
           brew trust --tap nchrtd22/tap
       - name: Configure Git user
-        uses: Homebrew/actions/git-user-config@main
+        uses: Homebrew/actions/git-user-config@63a2d4d8d4193eab3e62b1b782ff3ab8408f5b29 # main 2026-11-06
         with:
           username: ${{ github.actor }}
       - name: Bump outdated casks
