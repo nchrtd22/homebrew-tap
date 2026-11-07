@@ -1,6 +1,6 @@
 # nchrtd22 Homebrew Tap
 
-Personal Homebrew tap of Linux casks — managed installs for apps that are otherwise AppImage-only. Each cask provides full desktop integration, and versions are kept current by an automated weekly check.
+Personal Homebrew tap of Linux casks — managed installs for apps that ship only as AppImages or debs. Each cask provides full desktop integration, and versions are kept current by an automated weekly check.
 
 ## Usage
 
@@ -21,6 +21,7 @@ brew tap nchrtd22/homebrew-tap
 | `filen` | Filen — end-to-end encrypted cloud storage client |
 | `neo` | NEO — distraction-free word processor for writers |
 | `noson-linux` | Noson — SONOS system controller (also installs `noson-cli`) |
+| `qualcoder` | QualCoder — qualitative data analysis for text, images, audio, video |
 | `twos` | Twos — notes and journaling desktop app |
 
 ## Notes
