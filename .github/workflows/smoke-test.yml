@@ -1,0 +1,156 @@
+name: Smoke-test casks
+
+# Installs every changed cask for real — this exercises everything
+# check.yml cannot: preflight_steps (chdir bugs, unpacking), artifact
+# staging, the .desktop install, and brew audit. Inspired by
+# castrojo/tap's test-installation.yml, but using this tap's own
+# PR-staging pattern (git fetch + FETCH_HEAD) instead of a symlink
+# into Library/Taps, which is adjacent to the TapRemoteMismatchError
+# scar documented in AGENTS.md.
+
+on:
+  pull_request:
+    paths:
+      - "Casks/*.rb"
+  push:
+    branches:
+      - main
+    paths:
+      - "Casks/*.rb"
+  workflow_dispatch:
+    inputs:
+      casks:
+        description: "Comma-separated casks to test (empty = all)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smoke-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: 1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@63a2d4d8d4193eab3e62b1b782ff3ab8408f5b29 # main 2026-11-06
+
+      - name: Tap and trust
+        run: |
+          brew tap nchrtd22/tap
+          brew trust --tap nchrtd22/tap
+
+      # NEVER `brew tap <name> <local-path>` (TapRemoteMismatchError) and
+      # never symlink into Library/Taps — stage the PR inside the real
+      # clone, same as check.yml does.
+      - name: Stage the PR branch (pull requests only)
+        if: github.event_name == 'pull_request'
+        run: |
+          TAP_DIR="$(brew --repository nchrtd22/tap)"
+          git -C "$TAP_DIR" fetch origin "${{ github.event.pull_request.head.ref }}"
+          git -C "$TAP_DIR" checkout --quiet FETCH_HEAD
+
+      - name: Detect casks to test
+        id: changed
+        run: |
+          case "$GITHUB_EVENT_NAME" in
+            pull_request)
+              FILES=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD -- 'Casks/*.rb')
+              ;;
+            push)
+              # event.before is all-zeros only on the repo's very first push —
+              # not a real case for this tap.
+              FILES=$(git diff --name-only "${{ github.event.before }}" HEAD -- 'Casks/*.rb' || true)
+              ;;
+            workflow_dispatch)
+              INPUT="${{ github.event.inputs.casks }}"
+              if [ -n "$INPUT" ]; then
+                FILES=$(echo "$INPUT" | tr ',' '\n' | sed 's/^ *//;s/ *$//;s|^|Casks/|;s|$|.rb|')
+              else
+                FILES=$(ls -1 Casks/*.rb)
+              fi
+              ;;
+          esac
+          {
+            echo "files<<EOF"
+            echo "$FILES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "Casks to test:"
+          echo "$FILES"
+
+      - name: Install, verify, audit each cask
+        if: steps.changed.outputs.files != ''
+        run: |
+          EXIT_CODE=0
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            CASK=$(basename "$file" .rb)
+            echo "::group::Testing $CASK"
+
+            # Every cask in this tap ships a .desktop entry — snapshot the
+            # count so we can prove desktop integration actually landed.
+            DESKTOPS_BEFORE=$(ls -1 "$HOME/.local/share/applications"/*.desktop 2>/dev/null | wc -l)
+
+            ATTEMPT=1
+            MAX_ATTEMPTS=3
+            DELAY=5
+            INSTALLED=0
+            while [ "$ATTEMPT" -le "$MAX_ATTEMPTS" ]; do
+              echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: installing nchrtd22/tap/$CASK"
+              if brew install --cask "nchrtd22/tap/$CASK"; then
+                INSTALLED=1
+                break
+              fi
+              echo "::warning::$CASK install failed, retrying in ${DELAY}s"
+              sleep "$DELAY"
+              DELAY=$((DELAY * 2))
+              ATTEMPT=$((ATTEMPT + 1))
+            done
+
+            if [ "$INSTALLED" -ne 1 ]; then
+              echo "::error::$CASK failed to install after $MAX_ATTEMPTS attempts"
+              EXIT_CODE=1
+              echo "::endgroup::"
+              continue
+            fi
+            echo "OK: $CASK installed"
+
+            DESKTOPS_AFTER=$(ls -1 "$HOME/.local/share/applications"/*.desktop 2>/dev/null | wc -l)
+            if [ "$DESKTOPS_AFTER" -gt "$DESKTOPS_BEFORE" ]; then
+              echo "OK: $CASK desktop entry landed in ~/.local/share/applications"
+            else
+              echo "::error::$CASK installed but no new .desktop entry appeared"
+              EXIT_CODE=1
+            fi
+
+            if brew audit --cask "nchrtd22/tap/$CASK"; then
+              echo "OK: $CASK passes brew audit"
+            else
+              echo "::error::$CASK fails brew audit"
+              EXIT_CODE=1
+            fi
+
+            echo "::endgroup::"
+          done <<< "${{ steps.changed.outputs.files }}"
+          exit "$EXIT_CODE"
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ steps.changed.outputs.files }}" = "" ]; then
+            echo "No casks to test"
+          else
+            echo "Smoke test complete — see job log for per-cask results"
+          fi
