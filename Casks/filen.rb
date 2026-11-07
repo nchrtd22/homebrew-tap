@@ -58,3 +58,4 @@ cask "filen" do
   # belongs to the separate Filen CLI and is deliberately not zapped.
   zap trash: ["~/.config/@filen", "~/.config/@filendesktop-updater"]
 end
+# fetch-check smoke test
