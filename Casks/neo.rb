@@ -1,8 +1,8 @@
 cask "neo" do
   os linux: "linux"
 
-  version "1.6.3"
-  sha256 "492e3e8841b7c52e050aaf3a8f372fcb21c0e277d5a7dc086eda5aa992f41fec"
+  version "1.6.4"
+  sha256 "964807089ade35cf28e4b6ea02438ce22edf9ee28a9460c5ea8ae959c7e0565c"
 
   url "https://github.com/hughhowey/neo/releases/download/v#{version}/NEO-#{version}.AppImage"
   name "NEO"
@@ -42,8 +42,8 @@ cask "neo" do
   postflight_steps do
     # Point the desktop entry at the Homebrew binary instead of "AppRun".
     # Keeps upstream's %U args, Keywords and StartupWMClass intact.
-    run "/bin/sed", args: ["-e", "s|^Exec=AppRun|Exec={{HOMEBREW_PREFIX}}/bin/neo|",
-                          "{{staged_path}}/squashfs-root/neo.desktop"],
+    run "/bin/sed", args:        ["-e", "s|^Exec=AppRun|Exec={{HOMEBREW_PREFIX}}/bin/neo|",
+                                  "{{staged_path}}/squashfs-root/neo.desktop"],
                     stdout_path: "neo.desktop"
     copy "neo.desktop", ".local/share/applications/neo.desktop", target_base: :home
     copy "squashfs-root/usr/share/icons/hicolor/1024x1024/apps/neo.png",
