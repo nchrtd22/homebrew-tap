@@ -1,8 +1,8 @@
 cask "noson-linux" do
   os linux: "linux"
 
-  version "5.7.6"
-  sha256 "95c801141118eb9288aa56dd70eec59251db924578322ae439319df1f4dca699"
+  version "5.7.7"
+  sha256 "20eb4155f01153ced8b0e705f3fb5970d27e432f4fed15e55e34f3c209a319a6"
 
   url "https://github.com/janbar/noson-app/releases/download/#{version}/noson-#{version}-x86_64.AppImage"
   name "Noson"
@@ -43,8 +43,8 @@ cask "noson-linux" do
 
   postflight_steps do
     # Patch the desktop entry so it launches the Homebrew binary, not "noson-app" via PATH.
-    run "/bin/sed", args: ["-e", "s|^Exec=.*|Exec={{HOMEBREW_PREFIX}}/bin/noson|",
-                          "{{staged_path}}/squashfs-root/io.github.janbar.noson.desktop"],
+    run "/bin/sed", args:        ["-e", "s|^Exec=.*|Exec={{HOMEBREW_PREFIX}}/bin/noson|",
+                                  "{{staged_path}}/squashfs-root/io.github.janbar.noson.desktop"],
                     stdout_path: "io.github.janbar.noson.desktop"
     copy "io.github.janbar.noson.desktop", ".local/share/applications/io.github.janbar.noson.desktop",
          target_base: :home
