@@ -25,3 +25,20 @@ jobs:
           username: ${{ github.actor }}
       - name: Bump outdated casks
         run: brew bump --no-fork --open-pr --casks --tap=nchrtd22/tap
+      - name: Notify on new bump PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SINCE=$(date -u --date='15 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
+          open_prs=$(curl -sf -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/nchrtd22/homebrew-tap/pulls?state=open&per_page=100")
+          new_bumps=$(echo "$open_prs" | jq -r --arg since "$SINCE" \
+            '.[] | select(.created_at >= $since) | select(.head.ref | startswith("bump-")) | .number')
+          for pr in $new_bumps; do
+            title=$(echo "$open_prs" | jq -r --argjson n "$pr" '.[] | select(.number == $n) | .title')
+            curl -sf -X POST -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -d "{\"body\": \"@nchrtd22 Update available: ${title} — ready for review and merge.\"}" \
+              "https://api.github.com/repos/nchrtd22/homebrew-tap/issues/${pr}/comments"
+          done
