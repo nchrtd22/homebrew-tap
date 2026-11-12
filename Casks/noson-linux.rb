@@ -1,8 +1,8 @@
 cask "noson-linux" do
   os linux: "linux"
 
-  version "5.7.7"
-  sha256 "20eb4155f01153ced8b0e705f3fb5970d27e432f4fed15e55e34f3c209a319a6"
+  version "5.7.8"
+  sha256 "774cf6af7ac8298b7bcb42bc92639b0bb6d29e63616eec5b796ba36e9eb969cf"
 
   url "https://github.com/janbar/noson-app/releases/download/#{version}/noson-#{version}-x86_64.AppImage"
   name "Noson"
