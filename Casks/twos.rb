@@ -1,8 +1,8 @@
 cask "twos" do
   os linux: "linux"
 
-  version "1.21.3"
-  sha256 "a973d53d5807ce45700bb0b20cdcb0dfae0de6cb9baf2ebd8dbd675e867eecc2"
+  version "1.22.0"
+  sha256 "ff7e19eae0a17a5108165c9353bd353f8c87e3b2d6f960f87ed205b5d809274d"
 
   url "https://twosapp.com/api/desktop/updates/Twos-#{version}.AppImage"
   name "Twos"
@@ -43,8 +43,8 @@ cask "twos" do
     # Point the desktop entry at the Homebrew binary instead of "AppRun".
     # Keeps upstream's --no-sandbox flag, %U args, twos:// URL handler
     # (MimeType) and StartupWMClass intact.
-    run "/bin/sed", args: ["-e", "s|^Exec=AppRun|Exec={{HOMEBREW_PREFIX}}/bin/twos|",
-                          "{{staged_path}}/squashfs-root/newtwos.desktop"],
+    run "/bin/sed", args:        ["-e", "s|^Exec=AppRun|Exec={{HOMEBREW_PREFIX}}/bin/twos|",
+                                  "{{staged_path}}/squashfs-root/newtwos.desktop"],
                     stdout_path: "newtwos.desktop"
     copy "newtwos.desktop", ".local/share/applications/newtwos.desktop", target_base: :home
     copy "squashfs-root/usr/share/icons/hicolor/512x512/apps/newtwos.png",
