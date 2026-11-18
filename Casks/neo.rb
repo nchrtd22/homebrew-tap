@@ -1,8 +1,8 @@
 cask "neo" do
   os linux: "linux"
 
-  version "1.6.6"
-  sha256 "a82c7bfa49400507d862ceb5370f3e7e5e44bbb54928076cdeb34d1950c92188"
+  version "2.0.0"
+  sha256 "4eef0a75ad20a1436a59df17779f5a15e420341bda9716e3ee37c123f532fe7b"
 
   url "https://github.com/hughhowey/neo/releases/download/v#{version}/NEO-#{version}.AppImage"
   name "NEO"
