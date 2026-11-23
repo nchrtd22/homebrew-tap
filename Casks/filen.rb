@@ -1,8 +1,8 @@
 cask "filen" do
   os linux: "linux"
 
-  version "3.0.53"
-  sha256 "888298db82fa43d7be3feeeba86a2f745dbc1ffdf1efabe2cca5144a996461f2"
+  version "3.0.54"
+  sha256 "bb6c26cca95bec0abe4fb9a95a1a5c6d5e08b67204a0c24f2bafe0bfe33d43e3"
 
   url "https://cdn.filen.io/@filen/desktop/release/v#{version}/Filen_linux_x86_64.AppImage"
   name "Filen"
@@ -40,8 +40,8 @@ cask "filen" do
 
   postflight_steps do
     # Point the desktop entry at the Homebrew binary instead of "AppRun".
-    run "/bin/sed", args: ["-e", "s|^Exec=AppRun|Exec={{HOMEBREW_PREFIX}}/bin/filen|",
-                          "{{staged_path}}/squashfs-root/Filen.desktop"],
+    run "/bin/sed", args:        ["-e", "s|^Exec=AppRun|Exec={{HOMEBREW_PREFIX}}/bin/filen|",
+                                  "{{staged_path}}/squashfs-root/Filen.desktop"],
                     stdout_path: "Filen.desktop"
     copy "Filen.desktop", ".local/share/applications/Filen.desktop", target_base: :home
     copy "squashfs-root/usr/share/icons/hicolor/1024x1024/apps/Filen.png",
