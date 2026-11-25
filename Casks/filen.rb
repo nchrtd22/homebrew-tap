@@ -1,8 +1,8 @@
 cask "filen" do
   os linux: "linux"
 
-  version "3.0.54"
-  sha256 "bb6c26cca95bec0abe4fb9a95a1a5c6d5e08b67204a0c24f2bafe0bfe33d43e3"
+  version "3.0.55"
+  sha256 "6d7d2e6e7b8b3bc46022da84d3d16b693e808cee7a32f734a54699851c7abdd7"
 
   url "https://cdn.filen.io/@filen/desktop/release/v#{version}/Filen_linux_x86_64.AppImage"
   name "Filen"
